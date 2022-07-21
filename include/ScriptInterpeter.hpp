@@ -13,7 +13,7 @@
 *           of O(n), where n is size of m_scripts_ array.
 */
 
-namespace cbl
+namespace jcbl
 {
 
 class Script;
@@ -22,30 +22,41 @@ class ScriptInterpreter
 {
 public:
     ScriptInterpreter()
-        : m_scripts_(0), m_size_(0) { }
+        : m_scripts_(0), m_size_(0), m_loaded_(0) { }
     ~ScriptInterpreter();
 
+    /// @brief Open and read script at a given filepath.
+    /// @param filepath Script filepath.
     bool loadScript(const char *filepath);
-    bool unloadScript(const char *filepath);
-    bool unloadScript(size_t index);
+
+    /// @brief Terminate all loaded scripts.
     void unloadScripts();
+
+    /// @brief Start running all loaded scripts until they end.
     void run();
 
 private:
     ScriptInterpreter(ScriptInterpreter&);
     ScriptInterpreter &operator=(ScriptInterpreter&);
 
+    bool unloadScript(const char *filepath);
+    bool unloadScript(size_t index);
+    void executeScript(Script *script);
+
     Script **findEmptyScript();
+
     /// @brief Insert given script and returns its index inside the container.
     /// @param script Script to insert.
+    /// @details Insert and pass script ownership to the container.
     size_t insertScript(Script *script);
     void reallocScriptsArray(size_t newSize);
 
 private:
     Script **m_scripts_;
     size_t m_size_;
+    size_t m_loaded_;
 };
 
-} // namespace cbl
+} // namespace jcbl
 
 #endif // SCRIPT_INTERPRETER_HPP

@@ -4,35 +4,23 @@
 #include <cstring>
 #include <errno.h>
 
-typedef bool(cbl::ScriptInterpreter::*memfoo)(const char*);
-void memory_manager(cbl::ScriptInterpreter &interpreter, memfoo callback,
-    int argc, char **argv, const char *operation)
+void load_scripts(jcbl::ScriptInterpreter &interpeter, int argc, char **argv)
 {
     for (int i = 1; i < argc; i++)
     {
-        if ((interpreter.*callback)(argv[i]))
-        {
-            printf("Script \"%s\" has been successfully %sed.\n", argv[i],
-                operation);
-        }
+        if (interpeter.loadScript(argv[i]))
+            fprintf(stderr,
+                "Script \"%s\" has been successfully loaded.\n", argv[i]);
         else
-        {
-            fprintf(stderr, "Failed to %sed \"%s\": %s",
-                operation, argv[i], strerror(errno));
-        }
+            fprintf(stderr, "Failed to load \"%s\": %s",
+                argv[i], strerror(errno));
     }
 }
 
 int main(int argc, char **argv)
 {
-    using namespace cbl;
-
-    ScriptInterpreter interpeter;
-
-    memory_manager(
-        interpeter, &ScriptInterpreter::loadScript, argc, argv, "load");
-    /* interpeter.run(); */
-    memory_manager(
-        interpeter, &ScriptInterpreter::unloadScript, argc, argv, "unload");
+    jcbl::ScriptInterpreter interpeter;
+    load_scripts(interpeter, argc, argv);
+    interpeter.run();
     return 0;
 }

@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-namespace cbl
+namespace jcbl
 {
 
 class Command;
@@ -14,14 +14,14 @@ class Script
 
 public:
     /// @brief Construct a Script object that will own the passed commands.
-    /// @param commands Null terminated commands array.
+    /// @param commands Null terminating array of commands.
     Script(Command **commands, char *filepath)
         : m_commands_(commands), m_currentCommand_(0), m_filepath_(filepath) { }
-    /// @brief Release commands array.
+    /// @brief Free passed array of commands.
     ~Script();
 
     /// @brief Execute commands until the end or a break command.
-    /// @details The run() executes commands until the end or a break commandby
+    /// @details The run() executes commands until the end or a break command by
     /// calling their respective handlers. Once commands are finished the
     /// function will return false, true otherwise.
     bool run();
@@ -32,7 +32,11 @@ private:
     Script(Script&);
     Script &operator=(Script&);
 
-private:
+    int handlePrintCommand(const Command &cmd);
+    int handlePrintLoopCommand(const Command &cmd);
+    int handleNewlineCommand(const Command &cmd);
+
+    void printError(const Command &cmd) const;
 
 private:
     Command **m_commands_;
@@ -40,6 +44,6 @@ private:
     char *m_filepath_;
 };
 
-} // namespace cbl
+} // namespace jcbl
 
 #endif // SCRIPT_HPP
