@@ -2,7 +2,6 @@
 #define UTILITY_HPP
 
 #include <cstddef>
-#include <cstring>
 
 /// @brief Duplicate given buffer into a new allocated memory.
 /// @param buf Data to duplicate.

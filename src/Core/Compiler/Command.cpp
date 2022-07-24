@@ -1,4 +1,4 @@
-#include "Command.hpp"
+#include "Compiler/Command.hpp"
 
 #include <cassert>
 #include <cstdio>
@@ -39,13 +39,23 @@ const char *Command::getCommandLine() const
 }
 
 #define CMP_HDL(cmd) do { if (strcasecmp(str, #cmd) == 0) return cmd; } while(0)
-int Command::determineType(const char *str)
+Command::ID Command::determineType(const char *str)
 {
     CMP_HDL(Print);
     CMP_HDL(PrintLoop);
     CMP_HDL(Newline);
-    CMP_HDL(Break);
     return Unknown;
 }
+#undef CMP_HDL
+
+#define CMP_HDL(cmd) do { if (strncasecmp(buf, #cmd, n) == 0) return cmd; } while(0)
+Command::ID Command::determineType(const char *buf, size_t n)
+{
+    CMP_HDL(Print);
+    CMP_HDL(PrintLoop);
+    CMP_HDL(Newline);
+    return Unknown;
+}
+#undef CMP_HDL
 
 } // namespace jcbl

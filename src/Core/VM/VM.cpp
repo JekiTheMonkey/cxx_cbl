@@ -1,7 +1,7 @@
-#include "Command.hpp"
-#include "Script.hpp"
-#include "ScriptInterpeter.hpp"
-#include "Utility.hpp"
+#include "Compiler/Command.hpp"
+#include "VM/VM.hpp"
+#include "VM/Script.hpp"
+#include "Utility/Utility.hpp"
 
 #include <cassert>
 #include <cstdio>
@@ -12,16 +12,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-// Use C++ version instead of C ones.
-#define strndup(buf, n) cxx_strndup(buf, n)
-
 int count_lines(int fd, size_t &lines);
 int fill_commands(jcbl::Command **commands, int fd);
 
 namespace jcbl
 {
 
-ScriptInterpreter::~ScriptInterpreter()
+VM::~VM()
 {
     delete_matrix(m_scripts_);
 }
@@ -29,7 +26,7 @@ ScriptInterpreter::~ScriptInterpreter()
 // Errno is restored after close() in order to keep the one got from a
 // function just before it
 #define CLOSE(fd) do { int tmperr = errno; close(fd); errno = tmperr; } while(0)
-bool ScriptInterpreter::loadScript(const char *filepath)
+bool VM::loadScript(const char *filepath)
 {
     int fd = open(filepath, O_RDONLY);
     if (fd == -1)
@@ -61,7 +58,7 @@ bool ScriptInterpreter::loadScript(const char *filepath)
     return true;
 }
 
-bool ScriptInterpreter::unloadScript(const char *filepath)
+bool VM::unloadScript(const char *filepath)
 {
     size_t i = 0;
     for (; i < m_size_; i++)
@@ -75,7 +72,7 @@ bool ScriptInterpreter::unloadScript(const char *filepath)
     return unloadScript(i);
 }
 
-bool ScriptInterpreter::unloadScript(size_t index)
+bool VM::unloadScript(size_t index)
 {
     if (index >= m_size_)
         return false;
@@ -88,12 +85,12 @@ bool ScriptInterpreter::unloadScript(size_t index)
     return true;
 }
 
-void ScriptInterpreter::unloadScripts()
+void VM::unloadScripts()
 {
     delete_matrix(m_scripts_);
 }
 
-void ScriptInterpreter::run()
+void VM::run()
 {
     while (m_loaded_)
     {
@@ -111,7 +108,7 @@ void ScriptInterpreter::run()
     }
 }
 
-Script **ScriptInterpreter::findEmptyScript()
+Script **VM::findEmptyScript()
 {
     for (size_t i = 0; i < m_size_; i++)
         if (!m_scripts_[i])
@@ -119,7 +116,7 @@ Script **ScriptInterpreter::findEmptyScript()
     return 0;
 }
 
-size_t ScriptInterpreter::insertScript(Script *script)
+size_t VM::insertScript(Script *script)
 {
     Script **cell = findEmptyScript();
     size_t index;
@@ -140,7 +137,7 @@ size_t ScriptInterpreter::insertScript(Script *script)
     return index;
 }
 
-void ScriptInterpreter::reallocScriptsArray(size_t newSize)
+void VM::reallocScriptsArray(size_t newSize)
 {
     Script **newContainer = new Script*[newSize];
 
@@ -201,7 +198,7 @@ int retrieve_arguments(const char *buf, size_t len, char **args, size_t &argc)
         if (buf[i] == tokenLimiter)
         {
             end = buf + i;
-            args[argc] = strndup(begin, end - begin);
+            args[argc] = cxx_strndup(begin, end - begin);
             begin = end + 1; // Skip the quote.
             argc++;
         }
@@ -223,7 +220,7 @@ int retrieve_arguments(const char *buf, size_t len, char **args, size_t &argc)
     }
     if (begin > end)
     {
-        args[argc] = strndup(begin, buf + len - buf);
+        args[argc] = cxx_strndup(begin, buf + len - buf);
         argc++;
     }
     return 0;

@@ -1,0 +1,7 @@
+Print "Hello World"
+Newline
+# Just a comment
+# ...and some other comment
+Print "Some string"
+Newline
+PrintLoop "This will be printed 5 times" 5

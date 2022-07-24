@@ -1,20 +1,23 @@
 #ifndef COMMAND_HPP
 #define COMMAND_HPP
 
-#include "Utility.hpp"
+#include "Utility/NonCopyable.hpp"
+#include "Utility/Utility.hpp"
 
 namespace jcbl
 {
 
-class Command
+class Command : private NonCopyable
 {
 public:
-    enum
+    // All the commands identifiers should be available in
+    // Command::determineType().
+    enum ID
     {
         Print,
         PrintLoop,
         Newline,
-        Break,
+        Total,
         Unknown = -1
     };
 
@@ -37,11 +40,8 @@ public:
 
     void printArgs() const;
     const char *getCommandLine() const;
-    static int determineType(const char *cmd);
-
-private:
-    Command(Command&);
-    Command &operator=(Command&);
+    static ID determineType(const char *str);
+    static ID determineType(const char *buf, size_t n);
 
 private:
     int m_type_;

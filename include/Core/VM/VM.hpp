@@ -1,5 +1,7 @@
-#ifndef SCRIPT_INTERPRETER_HPP
-#define SCRIPT_INTERPRETER_HPP
+#ifndef VM_HPP
+#define VM_HPP
+
+#include "Utility/NonCopyable.hpp"
 
 #include <cstddef>
 
@@ -18,12 +20,12 @@ namespace jcbl
 
 class Script;
 
-class ScriptInterpreter
+class VM : private NonCopyable
 {
 public:
-    ScriptInterpreter()
+    VM()
         : m_scripts_(0), m_size_(0), m_loaded_(0) { }
-    ~ScriptInterpreter();
+    ~VM();
 
     /// @brief Open and read script at a given filepath.
     /// @param filepath Script filepath.
@@ -36,9 +38,6 @@ public:
     void run();
 
 private:
-    ScriptInterpreter(ScriptInterpreter&);
-    ScriptInterpreter &operator=(ScriptInterpreter&);
-
     bool unloadScript(const char *filepath);
     bool unloadScript(size_t index);
     void executeScript(Script *script);
@@ -49,6 +48,8 @@ private:
     /// @param script Script to insert.
     /// @details Insert and pass script ownership to the container.
     size_t insertScript(Script *script);
+
+    /// @brief
     void reallocScriptsArray(size_t newSize);
 
 private:
@@ -59,4 +60,4 @@ private:
 
 } // namespace jcbl
 
-#endif // SCRIPT_INTERPRETER_HPP
+#endif // VM_HPP

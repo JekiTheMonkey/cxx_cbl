@@ -1,6 +1,8 @@
 #ifndef SCRIPT_HPP
 #define SCRIPT_HPP
 
+#include "Utility/NonCopyable.hpp"
+
 #include <cstddef>
 
 namespace jcbl
@@ -9,7 +11,7 @@ namespace jcbl
 class Command;
 
 /// @brief Class that contains and manages commands.
-class Script
+class Script : private NonCopyable
 {
 
 public:
@@ -29,9 +31,6 @@ public:
     const char *getFilepath() const { return m_filepath_; }
 
 private:
-    Script(Script&);
-    Script &operator=(Script&);
-
     int handlePrintCommand(const Command &cmd);
     int handlePrintLoopCommand(const Command &cmd);
     int handleNewlineCommand(const Command &cmd);

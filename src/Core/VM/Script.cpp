@@ -1,6 +1,6 @@
-#include "Command.hpp"
-#include "Script.hpp"
-#include "Utility.hpp"
+#include "Compiler/Command.hpp"
+#include "VM/Script.hpp"
+#include "Utility/Utility.hpp"
 
 #include <cstdio>
 
@@ -41,9 +41,6 @@ bool Script::run()
                 break;
             case Command::Newline:
                 code = handleNewlineCommand(*cmd);
-                break;
-            case Command::Break:
-                run = false;
                 break;
             default:
                 fprintf(stderr, "Unknown command. Aborting script...\n");
