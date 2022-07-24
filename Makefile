@@ -1,6 +1,5 @@
-TARGET = JCBL
-CXX = g++
-CXXFLAGS = -std=c++98 -ansi -Wall -Wextra -Werror -O0 -g
+include config.mk
+
 INCLUDES = -I$(INCDIR)
 LIBS =
 LDFLAGS = $(INCLUDES) $(LIBS)
@@ -8,9 +7,8 @@ LDFLAGS = $(INCLUDES) $(LIBS)
 SRCDIR = src
 INCDIR = include
 BUILDDIR = build
-SRCEXT = cpp
-INCEXT = hpp
-OBJEXT = o
+INNERDIRS = $(shell find src -type d | tail -n +2 | cut -d/ -f2-)
+BUILDDIRS = $(patsubst %,$(BUILDDIR)/%,$(INNERDIRS))
 
 SOURCES = $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
@@ -20,24 +18,21 @@ all: options mkbuilddir $(TARGET)
 run: all
 	$(BUILDDIR)/$(TARGET)
 
-$(TARGET): $(OBJECTS)
-	$(CXX) -o $(BUILDDIR)/$@ $(CXXFLAGS) $(LDFLAGS) $^
-
-$(BUILDDIR)/%.$(OBJEXT): $(SRCDIR)/%.$(SRCEXT)
-	$(CXX) -c $< -o $@ $(CXXFLAGS) $(LDFLAGS)
+$(TARGET):
+	@+$(MAKE) -C src/Core
+	@+$(MAKE) -C src/Client
+	$(CXX) -o $(BUILDDIR)/$@ $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
 
 options:
 	@echo "$(TARGET) build options:"
 	@echo "CXXFLAGS = $(CXXFLAGS)"
-	@echo "LDLAGS   = $(LDLAGS)"
+	@echo "LDFLAGS  = $(LDFLAGS)"
 	@echo "CXX      = $(CXX)"
-	@echo "SOURCES  = $(SOURCES)"
-	@echo "OBJECTS  = $(OBJECTS)"
 
 mkbuilddir:
-	@mkdir -p $(BUILDDIR)
+	@mkdir -p $(BUILDDIRS)
 
 clean:
 	rm -f $(OBJECTS) $(BUILDDIR)/$(TARGET)
 
-.PHONY: all, clean, options, mkbuilddir
+.PHONY: all, run, clean, options, mkbuilddir
